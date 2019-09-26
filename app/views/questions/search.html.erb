@@ -1,0 +1,16 @@
+<main role="main" class="container">
+
+  <div class="my-3 p-3 bg-white rounded shadow-sm">
+    <h6 class="border-bottom border-gray pb-2 mb-0">Preguntas</h6>
+    <% @questions.each do |question| %>
+    <div class="media text-muted pt-3">
+     <span class="upvote-count"><%= question.answers.count %></span>
+     <p class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray text-truncate">
+      <strong class="d-block text-gray-dark"><%= link_to question.name, question %></strong>
+      <strong class="d-block text-gray-dark"><%= question.created_at.strftime("%Y-%m-%d(%T)") %>  by <%= question.user.email %></strong>
+      <%= question.body %>
+    </p>
+  </div>
+  <% end %>
+</div>
+</main>

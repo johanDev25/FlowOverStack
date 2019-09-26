@@ -1,0 +1,112 @@
+<main role="main">
+  <!-- Main jumbotron for a primary marketing message or call to action -->
+  <div class="jumbotron">
+    <div class="container">
+      <h1 class="display-3 text-dark"><%= @question.name.upcase %></h1>
+      <p class="text-dark"><%= markdown(@question.body) %></p>
+      <div class="comments">
+        <% @question.comments.each do |comment| %>
+        <div class="panel panel-default">
+          <small><%= comment.user.email %> comentó hace <%= distance_of_time_in_words(Time.now,comment.created_at) %></small>
+          <div class="panel-body">
+            <span><%= markdown(comment.body) %></span>
+          </div>
+        </div>
+        <% end %>
+      </div>
+      <hr>
+      <% if signed_in? %>
+      <%= form_for [@question, @question.comments.build] do |f| %>
+      <div class="form-group">
+        <%= f.text_area :body, class: "form-control", :required => 'required',placeholder: "Agregar Comentario" ,rows: 2 %>
+        <%= f.hidden_field :commentable_type, :value => @question.class.name%>
+      </div>
+      <div class="actions text-right">
+        <%= f.submit "Comentar Pregunta", class: "btn btn-primary" %>
+      </div>
+      <% end %>
+      <% end %>
+    </div>
+  </div>
+</main>
+
+<main role="main" class="container">
+  <% @question.answers.each do |answer| %> 
+  <div class="my-3 p-3 bg-white shadow-lg p-3 mb-5 bg-white rounded">
+    <h6 class="border-bottom border-gray pb-2 mb-0">Respuestas</h6>
+    <div class="media text-muted pt-3">
+      <svg class="bd-placeholder-img mr-2 rounded" width="32" height="32" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" focusable="false" role="img" aria-label="Placeholder: 32x32"><title>Placeholder</title><rect width="100%" height="100%" fill="#007bff"/><text x="50%" y="50%" fill="#007bff" dy=".3em">32x32</text></svg>
+      <div class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray">
+        <div class="d-flex justify-content-between align-items-center w-100">
+          <strong class="text-gray-dark"><%= answer.user.email %></strong>
+        </div>
+        <span class="d-block"> <%= markdown(answer.body) %></span>
+        <% if signed_in? %>
+        <div class="answerscomments">
+          <%= form_tag  "/comments/create" do %>
+          <div class="form-group">
+           <%= text_area_tag :body, params[:body], :required => 'required', class: 'form-control', :rows => 2 %>
+           <%= hidden_field_tag 'commentable_type', "#{answer.class.name}"%>
+           <%= hidden_field_tag 'commentable_id', "#{answer.id}"%>
+         </div>
+
+         <div class="actions text-right">
+          <%= submit_tag "Comentar Respuesta", class: "btn btn-primary" %>
+        </div>
+        <% end %>
+      </div>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="accordion" id="accordionExample">
+    <div class="card">
+      <div class="card-header" id="acordeon">
+        <h2 class="mb-0">
+         <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapse<%= answer.id %>" aria-expanded="false" aria-controls="collapse<%= answer.id %>">
+            Ver Comentarios
+          </button>
+        </h2>
+      </div>
+      <div id="collapse<%= answer.id %>" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionExample">
+        <div class="card-body">
+          <% answer.comments.each do |comment| %>
+          <div class="my-3 p-3 bg-white shadow p-3 mb-5 rounded">
+            <h6 class="border-bottom border-gray pb-2 mb-0">Comentario a respuesta</h6>
+            <div class="media text-muted pt-3">
+              <svg class="bd-placeholder-img mr-2 rounded" width="32" height="32" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" focusable="false" role="img" aria-label="Placeholder: 32x32"><title>Placeholder</title><rect width="100%" height="100%" fill="#007bff"/><text x="50%" y="50%" fill="#007bff" dy=".3em">32x32</text></svg>
+              <div class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray">
+                <div class="d-flex justify-content-between align-items-center w-100">
+                  <strong class="text-gray-dark"><%= comment.user.email %> comentó hace <%= distance_of_time_in_words(Time.now,comment.created_at) %></strong>
+                </div>
+                <span class="d-block"><%= markdown(comment.body) %></span>
+              </div>
+            </div>
+          </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+  <% end %>
+</main>
+
+<% if signed_in? %>
+<div class="card">
+  <div class="card-header">
+    Responder pregunta
+  </div>
+  <div class="card-body">
+    <h5 class="card-title">Tu respuesta:</h5>
+    <%= form_for [@question, @question.answers.build] do |f| %>
+    <p class="card-text"><%= f.text_area :body,:required => 'required', class: "form-control", placeholder: "Enviar Respuesta" ,rows: 3 %></p>
+    <%= f.submit "Enviar Respuesta", class: "btn btn-primary" %>
+  </div>
+</div>
+<% end %>
+<% end %>
+
+</div>
+</div>
+
+
