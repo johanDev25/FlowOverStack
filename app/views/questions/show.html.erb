@@ -1,13 +1,25 @@
 <main role="main">
   <!-- Main jumbotron for a primary marketing message or call to action -->
   <div class="jumbotron">
-    <div class="container">
-      <h1 class="display-3 text-dark"><%= @question.name.upcase %></h1>
+    <div class="container"> 
+        <div> 
+          <h1 class="display-3 text-dark"><%= @question.name.upcase %></h1>
+           <% if @question.question_voted_by? current_user %>
+        <%= link_to question_vote_path(@question), method: :delete do %>
+        <span class="text-success"> Votar por esta pregunta <strong><%= @question.votes.count %></strong> </span>
+        <br>
+        <% end %>
+        <% else %>
+        <%= link_to question_votes_path(@question), method: :post do %>
+        <span class="text-success"> Votar por esta pregunta <strong><%= @question.votes.count %></strong> </span>
+        <% end %>
+        <% end %>
+        </div>
       <p class="text-dark"><%= markdown(@question.body) %></p>
       <div class="comments">
         <% @question.comments.each do |comment| %>
+        <hr>
         <div class="panel panel-default">
-          <small><%= comment.user.email %> comentó hace <%= distance_of_time_in_words(Time.now,comment.created_at) %></small>
           <div class="panel-body">
             <span><%= markdown(comment.body) %></span>
           </div>
@@ -31,9 +43,18 @@
 </main>
 
 <main role="main" class="container">
-  <% @question.answers.each do |answer| %> 
   <div class="my-3 p-3 bg-white shadow-lg p-3 mb-5 bg-white rounded">
     <h6 class="border-bottom border-gray pb-2 mb-0">Respuestas</h6>
+      <% @question.answers.each do |answer| %> 
+  <% if answer.answer_voted_by? current_user %>
+  <%= link_to answer_vote_destroy_path(:answer_id => answer.id), method: :delete do %>
+  <span class="text-info"> Votar por esta respuesta <strong><%= answer.votes.count %></strong> </span>
+  <% end %>
+  <% else %>
+  <%= link_to answer_vote_path(:answer_id => answer.id), method: :post do %>
+  <span class="text-info"> Votar por esta respuesta <strong><%= answer.votes.count %></strong> </span>
+  <% end %>
+  <% end %>
     <div class="media text-muted pt-3">
       <svg class="bd-placeholder-img mr-2 rounded" width="32" height="32" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" focusable="false" role="img" aria-label="Placeholder: 32x32"><title>Placeholder</title><rect width="100%" height="100%" fill="#007bff"/><text x="50%" y="50%" fill="#007bff" dy=".3em">32x32</text></svg>
       <div class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray">
@@ -64,31 +85,31 @@
       <div class="card-header" id="acordeon">
         <h2 class="mb-0">
          <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapse<%= answer.id %>" aria-expanded="false" aria-controls="collapse<%= answer.id %>">
-            Ver Comentarios
-          </button>
-        </h2>
-      </div>
-      <div id="collapse<%= answer.id %>" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionExample">
-        <div class="card-body">
-          <% answer.comments.each do |comment| %>
-          <div class="my-3 p-3 bg-white shadow p-3 mb-5 rounded">
-            <h6 class="border-bottom border-gray pb-2 mb-0">Comentario a respuesta</h6>
-            <div class="media text-muted pt-3">
-              <svg class="bd-placeholder-img mr-2 rounded" width="32" height="32" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" focusable="false" role="img" aria-label="Placeholder: 32x32"><title>Placeholder</title><rect width="100%" height="100%" fill="#007bff"/><text x="50%" y="50%" fill="#007bff" dy=".3em">32x32</text></svg>
-              <div class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray">
-                <div class="d-flex justify-content-between align-items-center w-100">
-                  <strong class="text-gray-dark"><%= comment.user.email %> comentó hace <%= distance_of_time_in_words(Time.now,comment.created_at) %></strong>
-                </div>
-                <span class="d-block"><%= markdown(comment.body) %></span>
+          Ver Comentarios
+        </button>
+      </h2>
+    </div>
+    <div id="collapse<%= answer.id %>" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionExample">
+      <div class="card-body">
+        <% answer.comments.each do |comment| %>
+        <div class="my-3 p-3 bg-white shadow p-3 mb-5 rounded">
+          <h6 class="border-bottom border-gray pb-2 mb-0">Comentario a respuesta</h6>
+          <div class="media text-muted pt-3">
+            <svg class="bd-placeholder-img mr-2 rounded" width="32" height="32" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" focusable="false" role="img" aria-label="Placeholder: 32x32"><title>Placeholder</title><rect width="100%" height="100%" fill="#007bff"/><text x="50%" y="50%" fill="#007bff" dy=".3em">32x32</text></svg>
+            <div class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray">
+              <div class="d-flex justify-content-between align-items-center w-100">
+                <strong class="text-gray-dark"><%= comment.user.email %> comentó el <%= comment.created_at.strftime("%Y-%m-%d(%T)") %></strong>
               </div>
+              <span class="d-block"><%= markdown(comment.body) %></span>
             </div>
           </div>
-          <% end %>
         </div>
+        <% end %>
       </div>
     </div>
   </div>
-  <% end %>
+</div>
+<% end %>
 </main>
 
 <% if signed_in? %>
